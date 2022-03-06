@@ -1,0 +1,11 @@
+﻿{
+  "token": "token here",
+  "gateEnabled": true,
+  "status": {
+    "type": "playing",
+    "name": "your mom"
+  },
+  "logChannel": 123456789012345678,
+  "slashGuildId": 123456789012345678,
+  "debugFolderPath": "path/to/config/folder"
+}
