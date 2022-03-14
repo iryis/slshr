@@ -31,9 +31,9 @@ public class Roles : ApplicationCommandModule
             new DiscordInteractionResponseBuilder().WithContent("Done! You have been given the IRL role!"));
     }
 
-    [SlashCommand("role-members", "List members with a specific role")]
+    [SlashCommand("in-role", "Show how many members have a specific role")]
     public async Task RoleMembers(InteractionContext ctx,
-        [Option("role", "The role to list members for")]
+        [Option("role", "The role to get member count for")]
         DiscordRole role)
     {
         await ctx.DeferAsync(true);

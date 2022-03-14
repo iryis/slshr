@@ -7,8 +7,6 @@ using DSharpPlus.CommandsNext;
 using DSharpPlus.Entities;
 using DSharpPlus.EventArgs;
 using DSharpPlus.SlashCommands;
-using SlashrNext.Events;
-using SlashrNext.Objects;
 using SlashrNext.SlashCommands;
 using SlashrNext.Utils;
 
@@ -35,7 +33,7 @@ public class Slashr
 
         config = JsonSerializer.Deserialize<JsonElement>(
             File.ReadAllText(isDebug
-                ? $"{"debugFolderPath".GetConfigValue().GetString()}/config.json"
+                ? $"{Environment.CurrentDirectory}/../../../config.json"
                 : $"{Environment.CurrentDirectory}/config/config.json"));
         Moderation.LoadPassported();
         MainAsync().GetAwaiter().GetResult();
@@ -58,7 +56,6 @@ public class Slashr
         client.GuildCreated += GuildJoined;
 
         client.GuildDownloadCompleted += GuildDownloadComplete;
-        client.ComponentInteractionCreated += ComponentInteracted;
         client.MessageCreated += OnMessage;
         client.UnknownEvent += (_, args) =>
         {
@@ -78,12 +75,35 @@ public class Slashr
                 Logger.Error($"Command {e.Command.Name}: {e.Exception}\nContext: {e.Context}"));
         };
         var slash = client.UseSlashCommands();
-        slash.SlashCommandErrored += (_, e) =>
+        slash.SlashCommandErrored += (c, e) =>
+        {
+            return Task.Run(async () =>
+            {
+                if (e.Exception is InvalidOperationException)
+                {
+                    Logger.Msg($"{e.Context.Interaction.Data.Name}");
+                    Logger.Msg($"{e.Context.InteractionId}");
+                    Logger.Msg($"{e.Context.Interaction.Id}");
+                    var co = await c.Client.GetGuildApplicationCommandsAsync(e.Context.Guild.Id);
+                    foreach (var discordApplicationCommand in co)
+                    {
+                        Logger.Msg($"{discordApplicationCommand.Name} {discordApplicationCommand.Id}");
+                    }
+
+                    await c.Client.DeleteGuildApplicationCommandAsync(e.Context.Guild.Id, e.Context.Interaction.Id);
+                    await c.RefreshCommands();
+                    return;
+                }
+
+                Logger.Error($"SlashCommand Error: {e.Exception}\nContext: {e.Context}");
+            });
+        };
+
+        slash.ContextMenuErrored += (_, e) =>
         {
             return Task.Run(() =>
-                Logger.Error($"SlashCommand Error: {e.Exception}\nContext: {e.Context}"));
+                Logger.Error($"Context Menu Error: {e.Exception}\nContext: {e.Context}"));
         };
-        var gate = "gateEnabled".GetConfigValue().GetBoolean();
 
         foreach (var type in Assembly.GetExecutingAssembly().GetTypes().Where(t => t.Namespace == "SlashrNext.Events"))
         {
@@ -102,23 +122,10 @@ public class Slashr
     {
         uptime = Stopwatch.StartNew();
         Logger.Msg("Bot Ready");
-        await sender.GetChannelAsync("logChannel".GetConfigValue().GetUInt64()).Result
-            .SendMessageAsync("Bot is connected");
-    }
-
-    private static Task ComponentInteracted(DiscordClient sender, ComponentInteractionCreateEventArgs args)
-    {
-        return Task.Run(async () =>
+        await Task.Run(async () =>
         {
-            switch (args.Id)
-            {
-                case "sl_nk":
-                    await Fun.HandleMoreButton(args);
-                    break;
-                case "sl_nk_del":
-                    await args.Message.DeleteAsync();
-                    break;
-            }
+            await sender.GetChannelAsync("logChannel".GetConfigValue().GetUInt64()).Result
+                .SendMessageAsync("Bot is connected");
         });
     }
 

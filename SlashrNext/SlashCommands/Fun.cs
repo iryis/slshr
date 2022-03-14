@@ -1,10 +1,7 @@
-﻿using System.Net;
-using System.Text.Json;
-using DSharpPlus;
+﻿using DSharpPlus;
 using DSharpPlus.Entities;
 using DSharpPlus.EventArgs;
 using DSharpPlus.SlashCommands;
-using Newtonsoft.Json;
 using SlashrNext.Objects;
 using SlashrNext.Utils;
 using JsonElement = System.Text.Json.JsonElement;
@@ -29,7 +26,7 @@ public class Fun : ApplicationCommandModule
                     .EnsureSuccessStatusCode().Content.ReadAsStreamAsync();
             if (await JsonSerializer.DeserializeAsync(response, typeof(XKCD)) is not XKCD comic)
             {
-                await ctx.FollowUpAsync(new DiscordFollowupMessageBuilder().WithContent("Failed to fetch xkcd comic."));
+                await ctx.FollowUpAsync(new DiscordFollowupMessageBuilder().WithContent("Failed to fetch xkcd comic. D"));
                 return;
             }
 
@@ -39,9 +36,10 @@ public class Fun : ApplicationCommandModule
                     .WithImageUrl(comic.img).WithFooter(comic.alt).WithColor(new DiscordColor("#DEDDFF"))
                     .Build()));
         }
-        catch
+        catch (Exception err)
         {
-            await ctx.FollowUpAsync(new DiscordFollowupMessageBuilder().WithContent("Failed to fetch xkcd comic."));
+            Logger.Error(err);
+            await ctx.FollowUpAsync(new DiscordFollowupMessageBuilder().WithContent("Failed to fetch xkcd comic. "));
         }
     }
 
@@ -59,11 +57,13 @@ public class Fun : ApplicationCommandModule
             var neko = JsonSerializer.Deserialize<JsonElement>(response).GetProperty("url").GetString();
             await ctx.FollowUpAsync(
                 new DiscordFollowupMessageBuilder().AddEmbed(new DiscordEmbedBuilder().WithImageUrl(neko)
-                    .WithFooter("nya~").WithColor(new DiscordColor("#B366FF")).Build()).AddComponents(
-                    new DiscordButtonComponent(ButtonStyle.Primary, "sl_nk", "See more", false,
-                        new DiscordComponentEmoji(736864625320263751)), new DiscordButtonComponent(ButtonStyle.Danger,
-                        "sl_nk_del", "Delete", false,
-                        new DiscordComponentEmoji("❌"))));
+                        .WithFooter(neko).WithDescription("nyaa~").WithColor(new DiscordColor("#B366FF")).Build())
+                    .AddComponents(
+                        new DiscordButtonComponent(ButtonStyle.Primary, "sl_nk", "See more", false,
+                            new DiscordComponentEmoji(736864625320263751)), new DiscordButtonComponent(
+                            ButtonStyle.Danger,
+                            "sl_nk_del", "Delete", false,
+                            new DiscordComponentEmoji("❌"))));
         }
         catch (Exception e)
         {
@@ -85,7 +85,7 @@ public class Fun : ApplicationCommandModule
             var neko = JsonSerializer.Deserialize<JsonElement>(response).GetProperty("url").GetString();
             await ctx.Interaction.CreateResponseAsync(InteractionResponseType.UpdateMessage,
                 new DiscordInteractionResponseBuilder().AddEmbed(new DiscordEmbedBuilder().WithImageUrl(neko)
-                    .WithFooter("powered by nekos.life API").WithDescription("nyaa~")
+                    .WithFooter(neko).WithDescription("nyaa~")
                     .WithColor(new DiscordColor("#B366FF")).Build()).AddComponents(
                     new DiscordButtonComponent(ButtonStyle.Primary, "sl_nk", "See more", false,
                         new DiscordComponentEmoji(736864625320263751)),

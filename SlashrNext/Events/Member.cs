@@ -1,5 +1,4 @@
-﻿using DSharpPlus.Entities;
-using SlashrNext.SlashCommands;
+﻿using SlashrNext.SlashCommands;
 using SlashrNext.Utils;
 
 // ReSharper disable UnusedMember.Global

@@ -4,12 +4,16 @@
 *.sln.DotSettings.user
 *.idea
 bin/
+obj/
 .idea/
 /.idea/
 .env
 *.editorconfig
+config*.json
 config.json
+config-test.json
 passported.json
+roleselect.json
 
 #Ignore thumbnails created by Windows
 Thumbs.db
