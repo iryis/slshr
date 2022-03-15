@@ -11,7 +11,7 @@ public class Roles : ApplicationCommandModule
     public async Task IrlRole(InteractionContext ctx)
     {
         var member = ctx.Member;
-        var irlRole = ctx.Guild.GetRole(934632958986436668); // 761738544070131732
+        var irlRole = ctx.Guild.GetRole(761738544070131732); // 761738544070131732
         if (member.Roles.Contains(irlRole))
         {
             await ctx.CreateResponseAsync("You already have it!");

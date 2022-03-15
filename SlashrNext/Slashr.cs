@@ -63,7 +63,6 @@ public class Slashr
             return Task.CompletedTask;
         };
 
-
         var commands = client.UseCommandsNext(new CommandsNextConfiguration
         {
             StringPrefixes = new[] {"+"}, EnableDefaultHelp = false
