@@ -6,14 +6,8 @@ public static class Logger
 
     public static void Msg(string msg, ConsoleColor color = ConsoleColor.White)
     {
-        Console.ForegroundColor = ConsoleColor.Cyan;
-        Console.Write("[");
         Console.ForegroundColor = ConsoleColor.DarkCyan;
-        Console.Write(DateTime.Now.ToString("HH:mm:ss.fff"));
-        Console.ForegroundColor = ConsoleColor.Cyan;
-        Console.Write("] ");
-        Console.ForegroundColor = ConsoleColor.Yellow;
-        Console.Write(prefix);
+        Console.Write($"[{DateTime.Now:HH:mm:ss.fff}] {prefix} ");
 
         Console.ForegroundColor = color;
         Console.Write($"{msg}\n");
@@ -25,14 +19,8 @@ public static class Logger
 
     public static void Warn(string msg)
     {
-        Console.ForegroundColor = ConsoleColor.Cyan;
-        Console.Write("[");
         Console.ForegroundColor = ConsoleColor.DarkCyan;
-        Console.Write(DateTime.Now.ToString("HH:mm:ss.fff"));
-        Console.ForegroundColor = ConsoleColor.Cyan;
-        Console.Write("] ");
-        Console.ForegroundColor = ConsoleColor.Yellow;
-        Console.Write(prefix);
+        Console.Write($"[{DateTime.Now:HH:mm:ss.fff}] {prefix} ");
 
         Console.ForegroundColor = ConsoleColor.Yellow;
         Console.Write($"[WARNING] {msg}\n");
@@ -43,14 +31,8 @@ public static class Logger
 
     public static void Error(string msg)
     {
-        Console.ForegroundColor = ConsoleColor.Cyan;
-        Console.Write("[");
         Console.ForegroundColor = ConsoleColor.DarkCyan;
-        Console.Write(DateTime.Now.ToString("HH:mm:ss.fff"));
-        Console.ForegroundColor = ConsoleColor.Cyan;
-        Console.Write("] ");
-        Console.ForegroundColor = ConsoleColor.Yellow;
-        Console.Write(prefix);
+        Console.Write($"[{DateTime.Now:HH:mm:ss.fff}] {prefix} ");
 
         Console.ForegroundColor = ConsoleColor.Red;
         Console.Write($"[ERROR] {msg}\n");
