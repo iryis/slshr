@@ -43,6 +43,50 @@ public class Moderation : ApplicationCommandModule
         }
     }
 
+    [ContextMenu(ApplicationCommandType.MessageContextMenu, "Identify Proxy")]
+    public async Task IdentifyProxy(ContextMenuContext ctx)
+    {
+        if (!ctx.TargetMessage.WebhookMessage)
+        {
+            await ctx.CreateResponseAsync(InteractionResponseType.ChannelMessageWithSource,
+                new DiscordInteractionResponseBuilder().AsEphemeral()
+                    .WithContent("This message is sent by a user or bot, so this command is not applicable :P"));
+            return;
+        }
+
+        await ctx.DeferAsync(true);
+        using var client = new HttpClient();
+        try
+        {
+            var response =
+                await client
+                    .GetAsync($"https://api.pluralkit.me/v2/messages/{ctx.TargetMessage.Id}").GetAwaiter().GetResult()
+                    .EnsureSuccessStatusCode().Content.ReadAsStringAsync();
+            var proxy = ulong.Parse(
+                JsonSerializer.Deserialize<JsonElement>(response).GetProperty("sender").GetString() ??
+                throw new InvalidOperationException());
+            var member = await ctx.Guild.GetMemberAsync(proxy);
+            await ctx.FollowUpAsync(
+                new DiscordFollowupMessageBuilder().WithContent(
+                    $"The account associated with this proxy is {member.Mention} ({member.Id})"));
+        }
+        catch (Exception exc)
+        {
+            switch (exc)
+            {
+                case HttpRequestException:
+                    await ctx.FollowUpAsync(
+                        new DiscordFollowupMessageBuilder().WithContent(
+                            "Failed to get message info. This message *probably* isn't proxied."));
+                    break;
+                case InvalidOperationException:
+                    await ctx.FollowUpAsync(
+                        new DiscordFollowupMessageBuilder().WithContent("This message isn't proxied."));
+                    break;
+            }
+        }
+    }
+
     internal static void LoadPassported()
     {
         var h = JsonSerializer.Deserialize<List<ulong>>(
