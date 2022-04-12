@@ -137,7 +137,7 @@ public class Slashr
             if (msg.Message.Content.Contains("<@363916474127220739>") ||
                 msg.Message.Content.Contains("<@!363916474127220739>"))
             {
-                msg.Message.RespondAsync("<https://roleypoly.com/s/685617157916459012>");
+                msg.Message.RespondAsync("To assign roles through <@363916474127220739>, click here: <https://roleypoly.com/s/685617157916459012>");
             }
         });
     }
