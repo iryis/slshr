@@ -132,7 +132,7 @@ public class Slashr
     {
         return Task.Run(() =>
         {
-            if (msg.Guild == null || msg.Guild != null && msg.Guild.Id == "slashGuildId".GetConfigValue().GetUInt64() ||
+            if (msg.Guild == null || msg.Guild != null && msg.Guild.Id != "slashGuildId".GetConfigValue().GetUInt64() ||
                 msg.Author.IsBot || msg.Author.IsSystem == true || msg.Author.IsCurrent) return;
             if (msg.Message.Content.Contains("<@363916474127220739>") ||
                 msg.Message.Content.Contains("<@!363916474127220739>"))

@@ -43,7 +43,7 @@ public class Moderation : ApplicationCommandModule
         }
     }
 
-    [ContextMenu(ApplicationCommandType.MessageContextMenu, "Identify Proxy")]
+    [ContextMenu(ApplicationCommandType.MessageContextMenu, "Identify")]
     public async Task IdentifyProxy(ContextMenuContext ctx)
     {
         if (!ctx.TargetMessage.WebhookMessage)
