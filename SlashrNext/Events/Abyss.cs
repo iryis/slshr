@@ -1,4 +1,5 @@
-﻿using SlashrNext.Utils;
+﻿using DSharpPlus.Exceptions;
+using SlashrNext.Utils;
 
 namespace SlashrNext.Events;
 
@@ -14,7 +15,14 @@ public abstract class Abyss
             {
                 await Task.Delay(TimeSpan.FromMinutes(2));
                 if (args.Message.Pinned) return;
-                await args.Message.DeleteAsync();
+                try
+                {
+                    await args.Message.DeleteAsync();
+                }
+                catch (NotFoundException)
+                {
+                    Logger.Warn($"Could not delete abyss message [{args.Message.Id}], maybe it was already deleted?");
+                }
             });
         };
     }
