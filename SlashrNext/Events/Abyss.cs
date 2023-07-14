@@ -27,9 +27,10 @@ public abstract class Abyss
             if (abyssChannel.GetMessagesAsync().Result.Count == 0) return;
             await abyssChannel.DeleteMessagesAsync(await abyssChannel.GetMessagesAsync());
         }
-        catch
+        catch (Exception e)
         {
             Logger.Warn("Could not clean past abyss messages, there may be some lingering from bot downtime.");
+            Logger.Warn(e.Message);
         }
     }
 }

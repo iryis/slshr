@@ -7,5 +7,6 @@
   },
   "logChannel": 123456789012345678,
   "slashGuildId": 123456789012345678,
-  "debugFolderPath": "path/to/config/folder"
+  "abyssChannel": 123456789012345678,
+  "debugFolderPath": "/path/to/config/folder"
 }
