@@ -1,5 +1,4 @@
-﻿using SlashrNext.SlashCommands;
-using SlashrNext.Utils;
+﻿using SlashrNext.Utils;
 
 namespace SlashrNext.Events;
 
@@ -14,6 +13,7 @@ public abstract class Abyss
             return Task.Run(async () =>
             {
                 await Task.Delay(TimeSpan.FromMinutes(2));
+                if (args.Message.Pinned) return;
                 await args.Message.DeleteAsync();
             });
         };
@@ -25,12 +25,12 @@ public abstract class Abyss
         {
             var abyssChannel = await Slashr.client.GetChannelAsync("abyssChannel".GetConfigValue().GetUInt64());
             if (abyssChannel.GetMessagesAsync().Result.Count == 0) return;
-            await abyssChannel.DeleteMessagesAsync(await abyssChannel.GetMessagesAsync());
+            var abyssMsgs = await abyssChannel.GetMessagesAsync();
+            await abyssChannel.DeleteMessagesAsync(abyssMsgs.Where(m => !m.Pinned));
         }
         catch (Exception e)
         {
-            Logger.Warn("Could not clean past abyss messages, there may be some lingering from bot downtime.");
-            Logger.Warn(e.Message);
+            Logger.Warn($"Could not clean past abyss messages, there may be some lingering from bot downtime. ({e.Message})");
         }
     }
 }
