@@ -7,6 +7,7 @@ using DSharpPlus.CommandsNext;
 using DSharpPlus.Entities;
 using DSharpPlus.EventArgs;
 using DSharpPlus.SlashCommands;
+using SlashrNext.Events;
 using SlashrNext.SlashCommands;
 using SlashrNext.Utils;
 
@@ -71,7 +72,7 @@ public class Slashr
         commands.CommandErrored += (_, e) =>
         {
             return Task.Run(() =>
-                Logger.Error($"Command {e.Command.Name}: {e.Exception}\nContext: {e.Context}"));
+                Logger.Error($"Command {e.Command?.Name}: {e.Exception}\nContext: {e.Context}"));
         };
         var slash = client.UseSlashCommands();
         slash.SlashCommandErrored += (c, e) =>
@@ -125,6 +126,7 @@ public class Slashr
         {
             await sender.GetChannelAsync("logChannel".GetConfigValue().GetUInt64()).Result
                 .SendMessageAsync("Bot is connected");
+            Abyss.TryCleanup();
         });
     }
 

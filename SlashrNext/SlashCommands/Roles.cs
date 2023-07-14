@@ -31,6 +31,21 @@ public class Roles : ApplicationCommandModule
             new DiscordInteractionResponseBuilder().WithContent("Done! You have been given the IRL role!"));
     }
 
+    [SlashCommand("irl-optout", "Remove yourself from the irl pics channel")]
+    public async Task IrlRemove(InteractionContext ctx)
+    {
+        var member = ctx.Member;
+        var irlRole = ctx.Guild.GetRole(761738544070131732); // 761738544070131732
+        if (!member.Roles.Contains(irlRole))
+        {
+            await ctx.CreateResponseAsync("You don't even have the role lol");
+            return;
+        }
+        await ctx.Member.RevokeRoleAsync(irlRole, "Member opt-out of IRL role");
+            await ctx.CreateResponseAsync("You have been removed from the irl role & corresponding channel." +
+                                          " If you would like to opt-in again, use `/irl-role` or ask a mod.");
+    }
+
     [SlashCommand("in-role", "Show how many members have a specific role")]
     public async Task RoleMembers(InteractionContext ctx,
         [Option("role", "The role to get member count for")]

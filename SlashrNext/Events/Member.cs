@@ -28,7 +28,7 @@ public class Member
                 try
                 {
                     await args.Member.SendMessageAsync(
-                        $"Sorry, your account is too new to join {args.Guild.Name} at this time. Please try rejoining after your account is at least one day old.");
+                        $"Sorry, your Discord account is too new to join {args.Guild.Name} at this time. Please try rejoining after your account is at least one day old. ");
                 }
                 catch
                 {
@@ -39,7 +39,7 @@ public class Member
 
                 await sender.GetChannelAsync("logChannel".GetConfigValue().GetUInt64()).GetAwaiter().GetResult()
                     .SendMessageAsync(
-                        $"{user.Username}#{user.Discriminator} ({user.Id}) has been kicked: Account is too new");
+                        $"{user.Username} (#{user.Discriminator}) ({user.Id}) has been kicked: Account is too new");
                 return Task.CompletedTask;
             });
         };

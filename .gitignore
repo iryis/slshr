@@ -8,6 +8,7 @@ obj/
 .idea/
 /.idea/
 .env
+config/
 *.editorconfig
 config*.json
 config.json
