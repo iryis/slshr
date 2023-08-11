@@ -4,7 +4,7 @@ using DSharpPlus.SlashCommands;
 
 namespace SlashrNext.SlashCommands;
 
-public class General : ApplicationCommandModule
+public class Global : ApplicationCommandModule
 {
     [SlashCommand("hello", "Say hi!")]
     public async Task HelloCommand(InteractionContext ctx)

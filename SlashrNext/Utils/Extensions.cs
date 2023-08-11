@@ -15,12 +15,11 @@ public static class Extensions
         return activity.ToLowerInvariant() switch
         {
             "playing" => ActivityType.Playing,
-            "watching" => ActivityType.Watching,
-            "listening" => ActivityType.ListeningTo,
-            "listeningto" => ActivityType.ListeningTo,
             "streaming" => ActivityType.Streaming,
-            "competing" => ActivityType.Competing,
+            "listening" => ActivityType.ListeningTo,
+            "watching" => ActivityType.Watching,
             "custom" => ActivityType.Custom,
+            "competing" => ActivityType.Competing,
             _ => ActivityType.Playing
         };
     }

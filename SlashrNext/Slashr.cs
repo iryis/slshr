@@ -4,7 +4,6 @@ using System.Reflection;
 using System.Text.Json;
 using DSharpPlus;
 using DSharpPlus.CommandsNext;
-using DSharpPlus.Entities;
 using DSharpPlus.EventArgs;
 using DSharpPlus.SlashCommands;
 using SlashrNext.Events;
@@ -40,7 +39,7 @@ public class Slashr
         MainAsync().GetAwaiter().GetResult();
     }
 
-    public static async Task MainAsync()
+    private static async Task MainAsync()
     {
         client = new DiscordClient(new DiscordConfiguration
         {
@@ -49,8 +48,8 @@ public class Slashr
             Intents = DiscordIntents.AllUnprivileged | DiscordIntents.GuildMembers | DiscordIntents.GuildMessages
         });
         Logger.Msg("Bot Started");
-
-        client.Ready += OnReady;
+        
+        client.SessionCreated += OnReady;
         client.ClientErrored += OnClientError;
         client.SocketErrored += OnSocketError;
 
@@ -111,14 +110,24 @@ public class Slashr
         }
 
         commands.RegisterCommands(Assembly.GetExecutingAssembly());
-        slash.RegisterCommands(Assembly.GetExecutingAssembly(), "slashGuildId".GetConfigValue().GetUInt64());
+        var modules = Assembly.GetExecutingAssembly().GetTypes().Where(t => t.IsSubclassOf(typeof(ApplicationCommandModule)));
+        foreach(var module in modules) {
+            if (module.Name.Contains("Global"))
+            {
+                Logger.Warn($"Registering {module.Name} as GLOBAL command");
+                slash.RegisterCommands(module);
+                continue;
+            }
+            Logger.Msg($"Registering {module.Name} as GUILD command");
+            slash.RegisterCommands(module, "slashGuildId".GetConfigValue().GetUInt64());
+        }
         var status = config.GetProperty("status");
         await client.ConnectAsync(Extensions.ParseActivity(status.GetProperty("name").GetString() ?? "nothing",
             status.GetProperty("type").GetString() ?? "Playing"));
         await Task.Delay(-1);
     }
 
-    private static async Task OnReady(DiscordClient sender, ReadyEventArgs args)
+    private static async Task OnReady(DiscordClient sender, SessionReadyEventArgs args)
     {
         uptime = Stopwatch.StartNew();
         Logger.Msg("Bot Ready");
