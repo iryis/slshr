@@ -109,7 +109,7 @@ public class Moderation : ApplicationCommandModule
     {
         [ChoiceName("Playing")] Playing,
         [ChoiceName("Streaming")] Streaming,
-        [ChoiceName("Listening to")] Listening,
+        [ChoiceName("Listening to")] ListeningTo,
         [ChoiceName("Watching")] Watching,
         [ChoiceName("Custom")] Custom,
         [ChoiceName("Competing")] Competing
