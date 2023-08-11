@@ -56,8 +56,8 @@ public class Fun : ApplicationCommandModule
                     .EnsureSuccessStatusCode().Content.ReadAsStringAsync();
             var neko = JsonSerializer.Deserialize<JsonElement>(response).GetProperty("url").GetString();
             await ctx.FollowUpAsync(
-                new DiscordFollowupMessageBuilder().AddEmbed(new DiscordEmbedBuilder().WithImageUrl(neko)
-                        .WithFooter(neko).WithDescription("nyaa~").WithColor(new DiscordColor("#B366FF")).Build())
+                new DiscordFollowupMessageBuilder().AddEmbed(new DiscordEmbedBuilder().WithImageUrl(neko ?? string.Empty)
+                        .WithFooter(neko ?? string.Empty).WithDescription("nyaa~").WithColor(new DiscordColor("#B366FF")).Build())
                     .AddComponents(
                         new DiscordButtonComponent(ButtonStyle.Primary, "sl_nk", "See more", false,
                             new DiscordComponentEmoji(736864625320263751)), new DiscordButtonComponent(
@@ -84,8 +84,8 @@ public class Fun : ApplicationCommandModule
                     .EnsureSuccessStatusCode().Content.ReadAsStringAsync();
             var neko = JsonSerializer.Deserialize<JsonElement>(response).GetProperty("url").GetString();
             await ctx.Interaction.CreateResponseAsync(InteractionResponseType.UpdateMessage,
-                new DiscordInteractionResponseBuilder().AddEmbed(new DiscordEmbedBuilder().WithImageUrl(neko)
-                    .WithFooter(neko).WithDescription("nyaa~")
+                new DiscordInteractionResponseBuilder().AddEmbed(new DiscordEmbedBuilder().WithImageUrl(neko ?? string.Empty)
+                    .WithFooter(neko ?? string.Empty).WithDescription("nyaa~")
                     .WithColor(new DiscordColor("#B366FF")).Build()).AddComponents(
                     new DiscordButtonComponent(ButtonStyle.Primary, "sl_nk", "See more", false,
                         new DiscordComponentEmoji(736864625320263751)),

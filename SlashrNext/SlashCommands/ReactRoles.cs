@@ -29,12 +29,12 @@ public class ReactRoles : ApplicationCommandModule
                 rolesList.Add($"{r.Value.emoji.ConvertEmoji()} - {r.Value.baseRole.Mention}: {r.Value.description}"));
 
             var btnList = cat.roles.Select(r =>
-                new DiscordButtonComponent(ButtonStyle.Primary, $"sl_rr_{r.Key.Id}", r.Key.Name.Truncate(78), false,
+                new DiscordButtonComponent(ButtonStyle.Primary, $"sl_rr_{r.Key.Id}", r.Key.Name.Truncate(78) ?? string.Empty, false,
                     r.Value.emoji)).ToList();
 
             var embed = new DiscordEmbedBuilder().WithColor(new DiscordColor("#B7CEF7")).WithTitle(name)
-                .WithDescription($"{cat.description}".Truncate(4096))
-                .AddField("Roles", string.Join("\n", rolesList).Truncate(1024), true);
+                .WithDescription($"{cat.description}".Truncate(4096) ?? string.Empty)
+                .AddField("Roles", string.Join("\n", rolesList).Truncate(1024) ?? string.Empty, true);
 
             var builder = new DiscordMessageBuilder().WithEmbed(embed.Build());
             var buttons = btnList.Chunk(5);
@@ -49,7 +49,7 @@ public class ReactRoles : ApplicationCommandModule
             }
             catch (BadRequestException ex)
             {
-                Logger.Error(ex.Errors);
+                Logger.Error(ex.Errors ?? string.Empty);
             }
         }
 
@@ -75,12 +75,12 @@ public class ReactRoles : ApplicationCommandModule
             rolesList.Add($"{r.Value.emoji.ConvertEmoji()} - {r.Value.baseRole.Mention}: {r.Value.description}"));
 
         var btnList = cat.Value.roles.Select(r =>
-            new DiscordButtonComponent(ButtonStyle.Primary, $"sl_rr_{r.Key.Id}", r.Key.Name.Truncate(78), false,
+            new DiscordButtonComponent(ButtonStyle.Primary, $"sl_rr_{r.Key.Id}", r.Key.Name.Truncate(78) ?? string.Empty, false,
                 r.Value.emoji)).ToList();
 
         var embed = new DiscordEmbedBuilder().WithColor(new DiscordColor("#B7CEF7")).WithTitle(cat.Value.name)
-            .WithDescription($"{cat.Value.description}".Truncate(4096))
-            .AddField("Roles", string.Join("\n", rolesList).Truncate(1024), true);
+            .WithDescription($"{cat.Value.description}".Truncate(4096) ?? string.Empty)
+            .AddField("Roles", string.Join("\n", rolesList).Truncate(1024) ?? string.Empty, true);
 
         var builder = new DiscordMessageBuilder().WithEmbed(embed.Build());
         var buttons = btnList.Chunk(5);
@@ -95,7 +95,7 @@ public class ReactRoles : ApplicationCommandModule
         }
         catch (BadRequestException ex)
         {
-            Logger.Error(ex.Errors);
+            if (ex.Errors != null) Logger.Error(ex.Errors);
         }
     }
 
