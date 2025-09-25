@@ -113,8 +113,7 @@ public class Admin
     }
 
     [Command("slashcmdssuck")]
-    [Description("Delete EVERY global and guild slash command because discord sucks. " +
-                 "They will be re-added on the bots next restart")]
+    [Description("Delete EVERY cmd. discord suck")]
     [RequireMod]
     [ServersOnly]
     public async Task CleanupSlashCommands(CommandContext ctx)
@@ -145,7 +144,8 @@ public class Admin
             }
 
             await ctx.FollowupAsync(new DiscordFollowupMessageBuilder()
-                .WithContent($"Done. Deleted {deletedGlobal} global and {deletedGuild} guild slash command(s).")
+                .WithContent($"Done. Deleted {deletedGlobal} global and {deletedGuild} guild slash command(s). " +
+                             $"They will be re-added on the bots next restart")
                 .AsEphemeral());
         }
         catch (Exception ex)
