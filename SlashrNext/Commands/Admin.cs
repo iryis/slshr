@@ -6,7 +6,6 @@ using DSharpPlus.Entities;
 using SlashrNext.Objects;
 using SlashrNext.Utils;
 using System.ComponentModel;
-using DSharpPlus.Commands.Processors.SlashCommands;
 
 namespace SlashrNext.Commands;
 
