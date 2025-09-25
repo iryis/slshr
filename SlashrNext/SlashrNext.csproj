@@ -1,8 +1,8 @@
-<Project Sdk="Microsoft.NET.Sdk">
+<Project Sdk="Microsoft.NET.Sdk.Worker">
 
     <PropertyGroup>
         <OutputType>Exe</OutputType>
-        <TargetFramework>net8.0</TargetFramework>
+        <TargetFramework>net9.0</TargetFramework>
         <ImplicitUsings>enable</ImplicitUsings>
         <Nullable>enable</Nullable>
         <DockerDefaultTargetOS>Linux</DockerDefaultTargetOS>
@@ -12,9 +12,9 @@
     </PropertyGroup>
 
     <ItemGroup>
-      <PackageReference Include="DSharpPlus" Version="5.0.0-nightly-01669" />
-      <PackageReference Include="DSharpPlus.CommandsNext" Version="5.0.0-nightly-01669" />
-      <PackageReference Include="DSharpPlus.SlashCommands" Version="5.0.0-nightly-01669" />
+      <PackageReference Include="DSharpPlus" Version="5.0.0-nightly-02551" />
+      <PackageReference Include="DSharpPlus.Commands" Version="5.0.0-nightly-02551" />
+      <PackageReference Include="Microsoft.Extensions.Hosting" Version="9.0.9" />
     </ItemGroup>
 
 </Project>

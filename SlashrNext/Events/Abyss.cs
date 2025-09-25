@@ -1,40 +1,24 @@
-﻿using DSharpPlus.Exceptions;
+﻿using DSharpPlus;
+using DSharpPlus.Entities;
 using SlashrNext.Utils;
 
 namespace SlashrNext.Events;
 
 public abstract class Abyss
 {
-    public static void RegisterEvents()
-    {
-        Slashr.client.MessageCreated += (_, args) =>
-        {
-            if (args.Channel.Id != "abyssChannel".GetConfigValue().GetUInt64())
-                return Task.CompletedTask;
-            return Task.Run(async () =>
-            {
-                await Task.Delay(TimeSpan.FromMinutes(2));
-                if (args.Message.Pinned) return;
-                try
-                {
-                    await args.Message.DeleteAsync();
-                }
-                catch (NotFoundException)
-                {
-                    Logger.Warn($"Could not delete abyss message [{args.Message.Id}], maybe it was already deleted?");
-                }
-            });
-        };
-    }
-
-    public static async void TryCleanup()
+    public static async void TryCleanup(DiscordClient client)
     {
         try
         {
-            var abyssChannel = await Slashr.client.GetChannelAsync("abyssChannel".GetConfigValue().GetUInt64());
-            if (abyssChannel.GetMessagesAsync().Result.Count == 0) return;
-            var abyssMsgs = await abyssChannel.GetMessagesAsync();
-            await abyssChannel.DeleteMessagesAsync(abyssMsgs.Where(m => !m.Pinned));
+            var abyssChannel = await client.GetChannelAsync("abyssChannel".GetConfigValue().GetUInt64());
+            // Collect messages to delete (non-pinned) by enumerating the async stream
+            var toDelete = new List<DiscordMessage>();
+            await foreach (var msg in abyssChannel.GetMessagesAsync())
+            {
+                if (msg.Pinned != true) toDelete.Add(msg);
+            }
+            if (toDelete.Count == 0) return;
+            await abyssChannel.DeleteMessagesAsync(toDelete);
         }
         catch (Exception e)
         {

@@ -2,7 +2,7 @@ namespace SlashrNext.Utils;
 
 public static class Logger
 {
-    private static string prefix => "[Slashr] ";
+    private static string prefix => "[SLASHR] ";
 
     public static void Msg(string msg, ConsoleColor color = ConsoleColor.White)
     {

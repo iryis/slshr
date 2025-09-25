@@ -1,15 +1,20 @@
 ﻿using DSharpPlus;
-using DSharpPlus.CommandsNext;
-using DSharpPlus.CommandsNext.Attributes;
+using DSharpPlus.Commands;
+using DSharpPlus.Commands.ArgumentModifiers;
+using DSharpPlus.Commands.Processors.TextCommands;
 using DSharpPlus.Entities;
+using SlashrNext.Objects;
 using SlashrNext.Utils;
+using System.ComponentModel;
+using DSharpPlus.Commands.Processors.SlashCommands;
 
 namespace SlashrNext.Commands;
 
-public class ModOnly : BaseCommandModule
+public class Admin
 {
-    [Command("shutdown"), RequireOwner]
-    public async Task Shutdown(CommandContext ctx)
+    [Command("shutdown")]
+    [RequireMod]
+    public async Task Shutdown(TextCommandContext ctx)
     {
         Logger.Log("Received shutdown command, shutting down...");
         await ctx.RespondAsync("Shutting down...");
@@ -19,8 +24,9 @@ public class ModOnly : BaseCommandModule
     }
 
 
-    [Command("say"), RequireUserPermissions(Permissions.ManageMessages)]
-    public async Task SlashSay(CommandContext ctx, [RemainingText] string txt)
+    [Command("say")]
+    [RequireMod]
+    public async Task SlashSay(TextCommandContext ctx, [RemainingText] string txt)
     {
         try
         {
@@ -34,8 +40,9 @@ public class ModOnly : BaseCommandModule
         await ctx.RespondAsync(txt);
     }
 
-    [Command("sayc"), RequireUserPermissions(Permissions.ManageMessages)]
-    public async Task SlashSay(CommandContext ctx, DiscordChannel channel, [RemainingText] string txt)
+    [Command("sayc")]
+    [RequireMod]
+    public async Task SlashSay(TextCommandContext ctx, DiscordChannel channel, [RemainingText] string txt)
     {
         try
         {
@@ -54,9 +61,12 @@ public class ModOnly : BaseCommandModule
     /// It will also only edit the first embed because im lazy and having functionality for multiple is just tedious to make
     /// Edit an embed's body.
     /// </summary>
-    [Command("ebody"), RequireUserPermissions(Permissions.ManageMessages)]
-    public async Task EditEmbed(CommandContext ctx, DiscordMessage msg, [RemainingText] string content)
+    [Command("editembedbody")]
+    [RequireMod]
+    [ServersOnly]
+    public async Task EditEmbed(TextCommandContext ctx, DiscordMessage msg, [RemainingText] string content)
     {
+        if (msg.Author is null) return;
         if (msg.Author.Id != ctx.Client.CurrentUser.Id)
         {
             await ctx.RespondAsync("You can only edit embeds sent by the same bot user.");
@@ -75,13 +85,15 @@ public class ModOnly : BaseCommandModule
             Logger.Warn($"Failed to edit embed body of {msg.Id}:\n{ex}");
         }
     }
-    
+
     /// <summary>
     /// im doing it this way until i get less lazy
     /// </summary>
-    [Command("etitle"), RequireUserPermissions(Permissions.ManageMessages)]
-    public async Task EditEmbedTitle(CommandContext ctx, DiscordMessage msg, [RemainingText] string content)
+    [Command("edittitle")]
+    [RequireMod]
+    public async Task EditEmbedTitle(TextCommandContext ctx, DiscordMessage msg, [RemainingText] string content)
     {
+        if (msg.Author is null) return;
         if (msg.Author.Id != ctx.Client.CurrentUser.Id)
         {
             await ctx.RespondAsync("You can only edit embeds sent by the same bot user.");
@@ -100,26 +112,49 @@ public class ModOnly : BaseCommandModule
             Logger.Warn($"Failed to edit embed title of {msg.Id}:\n{ex}");
         }
     }
-    
-    [Command("eroles"), RequireUserPermissions(Permissions.ManageMessages)]
-    public async Task EditRolesField(CommandContext ctx, DiscordMessage msg, [RemainingText] string content)
+
+    [Command("slashcmdssuck")]
+    [Description("Delete EVERY global and guild slash command because discord sucks. " +
+                 "They will be re-added on the bots next restart")]
+    [RequireMod]
+    [ServersOnly]
+    public async Task CleanupSlashCommands(CommandContext ctx)
     {
-        if (msg.Author.Id != ctx.Client.CurrentUser.Id)
-        {
-            await ctx.RespondAsync("You can only edit embeds sent by the same bot user.");
-            return;
-        }
+        Logger.Warn("Cleaning up slash cmds!");
+        await ctx.DeferResponseAsync();
 
         try
         {
-            await msg.ModifyAsync(new DiscordEmbedBuilder(msg.Embeds[0]).RemoveFieldAt(0).AddField("Roles", content, true).Build());
-            await ctx.RespondAsync(new DiscordMessageBuilder().WithContent("Roles field edited."));
+            var guildId = "slashGuildId".GetConfigValue().GetUInt64();
+
+            var globalCmds = await ctx.Client.GetGlobalApplicationCommandsAsync();
+            var guildCmds = await ctx.Client.GetGuildApplicationCommandsAsync(guildId);
+
+            var deletedGlobal = 0;
+            var deletedGuild = 0;
+
+            foreach (var cmd in globalCmds)
+            {
+                await ctx.Client.DeleteGlobalApplicationCommandAsync(cmd.Id);
+                deletedGlobal++;
+            }
+
+            foreach (var cmd in guildCmds)
+            {
+                await ctx.Client.DeleteGuildApplicationCommandAsync(guildId, cmd.Id);
+                deletedGuild++;
+            }
+
+            await ctx.FollowupAsync(new DiscordFollowupMessageBuilder()
+                .WithContent($"Done. Deleted {deletedGlobal} global and {deletedGuild} guild slash command(s).")
+                .AsEphemeral());
         }
         catch (Exception ex)
         {
-            // ignored, bot has no perms most likely
-            await ctx.RespondAsync("Failed to edit embed.");
-            Logger.Warn($"Failed to edit roles field of {msg.Id}:\n{ex}");
+            Logger.Error($"Slash cleanup failed: {ex}");
+            await ctx.FollowupAsync(new DiscordFollowupMessageBuilder()
+                .WithContent("Failed to clean slash commands. Check logs for details.")
+                .AsEphemeral());
         }
     }
 }

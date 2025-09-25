@@ -1,39 +1,40 @@
 ﻿using System.Text.Json;
 using DSharpPlus.Entities;
-using System;
-using DSharpPlus.CommandsNext.Converters;
+using System.Reflection;
+using DSharpPlus.Commands;
 
 namespace SlashrNext.Utils;
 
 public static class Extensions
 {
-    private static ActivityType ParseActivityType(this string? activity)
+    private static DiscordActivityType ParseActivityType(this string? activity)
     {
-        if (string.IsNullOrEmpty(activity)) return ActivityType.Playing;
-        var didParse = Enum.TryParse<ActivityType>(activity, out var at);
+        if (string.IsNullOrEmpty(activity)) return DiscordActivityType.Playing;
+        var didParse = Enum.TryParse<DiscordActivityType>(activity, out var at);
         if (didParse) return at;
         return activity.ToLowerInvariant() switch
         {
-            "playing" => ActivityType.Playing,
-            "streaming" => ActivityType.Streaming,
-            "listening" => ActivityType.ListeningTo,
-            "watching" => ActivityType.Watching,
-            "custom" => ActivityType.Custom,
-            "competing" => ActivityType.Competing,
-            _ => ActivityType.Playing
+            "playing" => DiscordActivityType.Playing,
+            "streaming" => DiscordActivityType.Streaming,
+            "listening" => DiscordActivityType.ListeningTo,
+            "watching" => DiscordActivityType.Watching,
+            "custom" => DiscordActivityType.Custom,
+            "competing" => DiscordActivityType.Competing,
+            _ => DiscordActivityType.Custom
         };
     }
 
-    public static string? Truncate(this string? value, int maxLength, string truncationSuffix = "…")
+    public static string Truncate(this string value, int maxLength, string truncationSuffix = "…")
     {
-        return value?.Length > maxLength
+        return value.Length > maxLength
             ? string.Concat(value.AsSpan(0, maxLength), truncationSuffix)
             : value;
     }
 
-    internal static DiscordActivity ParseActivity(string name, string activityType)
+    internal static DiscordActivity ParseActivity(string name, string DiscordActivityType)
     {
-        return new DiscordActivity(name, activityType.ParseActivityType());
+        var safeName = name.Truncate(128);
+        return new DiscordActivity(safeName, DiscordActivityType.ParseActivityType());
     }
 
     public static DiscordEmoji? ConvertEmoji(this DiscordComponentEmoji e)
@@ -43,8 +44,8 @@ public static class Extensions
             if (DiscordEmoji.IsValidUnicode(e.Name))
                 return DiscordEmoji.FromUnicode(e.Name);
             return e.Id != 0L
-                ? DiscordEmoji.FromGuildEmote(Slashr.client, e.Id)
-                : DiscordEmoji.FromName(Slashr.client, e.Name);
+                ? DiscordEmoji.FromGuildEmote(Slashr.discordClient, e.Id)
+                : DiscordEmoji.FromName(Slashr.discordClient, e.Name);
         }
         catch (Exception ex)
         {
@@ -57,5 +58,29 @@ public static class Extensions
     {
         var config = Slashr.config.GetProperty(name);
         return config;
+    }
+
+    // Discover current command names in this assembly. These are the names that should exist as slash commands.
+    internal static HashSet<string> GetDeclaredSlashCommandNames()
+    {
+        var asm = Assembly.GetExecutingAssembly();
+        var names = new HashSet<string>(StringComparer.OrdinalIgnoreCase);
+
+        foreach (var type in asm.GetTypes())
+        {
+            if (!type.IsClass) continue;
+
+            foreach (var method in type.GetMethods(BindingFlags.Instance | BindingFlags.Public | BindingFlags.DeclaredOnly))
+            {
+                var cmdAttr = method.GetCustomAttribute<CommandAttribute>();
+                if (cmdAttr == null) continue;
+
+                var name = string.IsNullOrWhiteSpace(cmdAttr.Name) ? method.Name : cmdAttr.Name;
+                // Discord slash command names are lowercase; keep safe by normalizing.
+                names.Add(name.Trim().ToLowerInvariant());
+            }
+        }
+
+        return names;
     }
 }
